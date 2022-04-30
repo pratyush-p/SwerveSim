@@ -13,6 +13,7 @@ import edu.wpi.first.math.util.Units;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -37,6 +38,13 @@ public class DriveSubsystem extends SubsystemBase {
     private double ySpeed;
     private double rot;
     private double finalTargetAngle;
+    private boolean isKB = true;
+    private double getAxisX;
+    private double getAxisY;
+    private double getAxisTheta;
+    private SlewRateLimiter limiterX;
+    private SlewRateLimiter limiterY;
+    private SlewRateLimiter limiterZ;
 
     private final SwerveModule m_frontLeft = new SwerveModule(
             DriveConstants.kFrontLeftDriveMotorPort,
@@ -110,12 +118,15 @@ public class DriveSubsystem extends SubsystemBase {
         trackTarget = false;
         dynamicTarget = false;
         turningCounter = 0;
-        xSpeed = RobotContainer.getJoy().getRawAxis(0) * DriveConstants.kMaxSpeedMetersPerSecond;
-        ySpeed = -RobotContainer.getJoy().getRawAxis(1) * DriveConstants.kMaxSpeedMetersPerSecond;
-        rot = -RobotContainer.getJoy().getRawAxis(2) * DriveConstants.kMaxChassisAngularSpeedRadiansPerSecond;
+        // xSpeed = RobotContainer.getJoy().getRawAxis(0) * DriveConstants.kMaxSpeedMetersPerSecond;
+        // ySpeed = -RobotContainer.getJoy().getRawAxis(1) * DriveConstants.kMaxSpeedMetersPerSecond;
+        // rot = -RobotContainer.getJoy().getRawAxis(2) * DriveConstants.kMaxChassisAngularSpeedRadiansPerSecond;
         targettrackPID = new PIDController(0.4, 0, 0);
         targettrackPID.enableContinuousInput(1, 360);
         resetOdometry(new Pose2d(8.811, 6.263, new Rotation2d(0)));
+        limiterX = new SlewRateLimiter(4);
+        limiterY = new SlewRateLimiter(4);
+        limiterZ = new SlewRateLimiter(8);
     }
 
     @Override
@@ -498,6 +509,19 @@ public class DriveSubsystem extends SubsystemBase {
                 m_rearLeft.getState(),
                 m_rearRight.getState()
         };
+        if (isKB) {
+            getAxisX = limiterX.calculate(SmartDashboard.getNumber("x", 0));
+            getAxisY = limiterY.calculate(SmartDashboard.getNumber("y", 0));
+            getAxisTheta = limiterZ.calculate(SmartDashboard.getNumber("z", 0));
+        } else if (!isKB) {
+            getAxisX = RobotContainer.getJoy().getRawAxis(0);
+            getAxisY = RobotContainer.getJoy().getRawAxis(1);
+            getAxisTheta = RobotContainer.getJoy().getRawAxis(4);
+        }
+
+        SmartDashboard.putNumber("limitX", limiterX.calculate(SmartDashboard.getNumber("x", 0)));
+        SmartDashboard.putNumber("limitY", limiterY.calculate(SmartDashboard.getNumber("y", 0)));
+        SmartDashboard.putNumber("limitZ", limiterZ.calculate(SmartDashboard.getNumber("z", 0)));
 
         var chassisSpeed = kDriveKinematics.toChassisSpeeds(moduleStates);
         double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
@@ -508,19 +532,21 @@ public class DriveSubsystem extends SubsystemBase {
         if (RobotContainer.getJoy().getAButtonPressed())
             fieldRelative = !fieldRelative;
 
-        if (RobotContainer.getJoy().getBButtonPressed())
-            trackTarget = !trackTarget;
+        // if (RobotContainer.getJoy().getBButtonPressed())
+        //     trackTarget = !trackTarget;
+
+        trackTarget = SmartDashboard.getBoolean("targetLock", false);
 
         if (RobotContainer.getJoy().getXButtonPressed()) {
             dynamicTarget = !dynamicTarget;
         }
 
         if (fieldRelative) {
-            xSpeed = Math.abs(RobotContainer.getJoy().getRawAxis(0)) >= 0.15
-                    ? RobotContainer.getJoy().getRawAxis(0) * DriveConstants.kMaxSpeedMetersPerSecond
+            xSpeed = Math.abs(getAxisX) >= 0.15
+                    ? getAxisX * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
-            ySpeed = Math.abs(RobotContainer.getJoy().getRawAxis(1)) >= 0.15
-                    ? -RobotContainer.getJoy().getRawAxis(1) * DriveConstants.kMaxSpeedMetersPerSecond
+            ySpeed = Math.abs(getAxisY) >= 0.15
+                    ? getAxisY * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
 
             // VVVVV this irl speeds because daniel is looking from shortside not longside
@@ -535,17 +561,17 @@ public class DriveSubsystem extends SubsystemBase {
             // DriveConstants.kMaxChassisAngularSpeedRadiansPerSecond;
 
         } else if (!fieldRelative) {
-            xSpeed = Math.abs(-RobotContainer.getJoy().getRawAxis(1)) >= 0.15
-                    ? -RobotContainer.getJoy().getRawAxis(1) * DriveConstants.kMaxSpeedMetersPerSecond
+            xSpeed = Math.abs(-getAxisY) >= 0.15
+                    ? -getAxisY * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
-            ySpeed = Math.abs(-RobotContainer.getJoy().getRawAxis(0)) >= 0.15
-                    ? -RobotContainer.getJoy().getRawAxis(0) * DriveConstants.kMaxSpeedMetersPerSecond
+            ySpeed = Math.abs(-getAxisX) >= 0.15
+                    ? -getAxisX * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
         }
 
         if (!trackTarget) {
-            rot = Math.abs(-RobotContainer.getJoy().getRawAxis(4)) >= 0.15
-                    ? -RobotContainer.getJoy().getRawAxis(4) * DriveConstants.kMaxChassisAngularSpeedRadiansPerSecond
+            rot = Math.abs(-getAxisTheta) >= 0.15
+                    ? -getAxisTheta * DriveConstants.kMaxChassisAngularSpeedRadiansPerSecond
                     : 0.0;
         } else if (trackTarget) {
             if (dynamicTarget) {

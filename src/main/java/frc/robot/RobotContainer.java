@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class RobotContainer {
     // The robot's subsystems
-    private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+    private static final DriveSubsystem m_robotDrive = new DriveSubsystem();
 
     // The driver's controller
     private static XboxController m_driverController = new XboxController(0);
@@ -125,6 +125,10 @@ public class RobotContainer {
 
     public static XboxController getJoy() {
         return m_driverController;
+    }
+
+    public static DriveSubsystem getDrive() {
+        return m_robotDrive;
     }
 
 }

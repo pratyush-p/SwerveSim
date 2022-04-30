@@ -5,8 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -33,6 +36,7 @@ public class Robot extends TimedRobot {
         // and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
+
     }
 
     /**
@@ -102,6 +106,18 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        Command xCommand = new RunCommand(() -> System.out.println("x running"), RobotContainer.getDrive());
+        Command yCommand = new RunCommand(() -> System.out.println("y running"), RobotContainer.getDrive());
+            
+        // A chooser for autonomous commands
+        SendableChooser<Command> m_chooser = new SendableChooser<>();
+
+        m_chooser.setDefaultOption("xCom", xCommand);
+        m_chooser.addOption("yCom", yCommand);
+
+        SmartDashboard.putData(m_chooser);
+
     }
 
     /** This function is called periodically during operator control. */
