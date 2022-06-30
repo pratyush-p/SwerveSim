@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
     private double ySpeed;
     private double rot;
     private double finalTargetAngle;
-    private boolean isKB = true;
+    private boolean isKB = false;
     private double getAxisX;
     private double getAxisY;
     private double getAxisTheta;
@@ -532,10 +532,10 @@ public class DriveSubsystem extends SubsystemBase {
         if (RobotContainer.getJoy().getAButtonPressed())
             fieldRelative = !fieldRelative;
 
-        // if (RobotContainer.getJoy().getBButtonPressed())
-        //     trackTarget = !trackTarget;
+        if (RobotContainer.getJoy().getBButtonPressed())
+            trackTarget = !trackTarget;
 
-        trackTarget = SmartDashboard.getBoolean("targetLock", false);
+        // trackTarget = SmartDashboard.getBoolean("targetLock", false);
 
         if (RobotContainer.getJoy().getXButtonPressed()) {
             dynamicTarget = !dynamicTarget;
@@ -546,7 +546,7 @@ public class DriveSubsystem extends SubsystemBase {
                     ? getAxisX * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
             ySpeed = Math.abs(getAxisY) >= 0.15
-                    ? getAxisY * DriveConstants.kMaxSpeedMetersPerSecond
+                    ? -getAxisY * DriveConstants.kMaxSpeedMetersPerSecond
                     : 0.0;
 
             // VVVVV this irl speeds because daniel is looking from shortside not longside
