@@ -31,6 +31,9 @@
       "/LiveWindow/Ungrouped/Spark[5]": "Motor Controller",
       "/LiveWindow/Ungrouped/Spark[6]": "Motor Controller",
       "/LiveWindow/Ungrouped/Spark[7]": "Motor Controller",
+      "/Shuffleboard/Work/Field5427": "Field2d",
+      "/Shuffleboard/Work/asdfasdfsdf": "Field2d",
+      "/Shuffleboard/Work/field": "Field2d",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/SendableChooser[0]": "String Chooser"
     },
@@ -63,7 +66,16 @@
     }
   },
   "NetworkTables": {
+    "Fart": {
+      "open": true
+    },
     "LiveWindow": {
+      "open": true
+    },
+    "Shuffleboard": {
+      "Work": {
+        "open": true
+      },
       "open": true
     },
     "SmartDashboard": {

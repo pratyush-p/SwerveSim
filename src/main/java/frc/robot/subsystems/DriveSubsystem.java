@@ -5,11 +5,15 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Logger;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.math.controller.PIDController;
@@ -114,6 +118,8 @@ public class DriveSubsystem extends SubsystemBase {
     public DriveSubsystem() {
 
         SmartDashboard.putData("Field", m_fieldSim);
+        // Logger.Work.postComplex("asdfasdfsdf", m_fieldSim);
+
         fieldRelative = true;
         trackTarget = false;
         dynamicTarget = false;
@@ -127,6 +133,8 @@ public class DriveSubsystem extends SubsystemBase {
         limiterX = new SlewRateLimiter(4);
         limiterY = new SlewRateLimiter(4);
         limiterZ = new SlewRateLimiter(8);
+
+        log();
     }
 
     @Override
@@ -198,7 +206,7 @@ public class DriveSubsystem extends SubsystemBase {
         m_rearLeft.setDesiredState(swerveModuleStates[2]);
         m_rearRight.setDesiredState(swerveModuleStates[3]);
 
-        SmartDashboard.putNumber("gyro deg", getGyroDeg(true));
+        // SmartDashboard.putNumber("gyro deg", getGyroDeg(true));
         // SmartDashboard.putString("coords", getPose().getTranslation().toString());
         // SmartDashboard.putNumber("target_angle_raw", getTargetAngle());
         // SmartDashboard.putNumber("target_angle_dynamic", getDynamicTargetAngle());
@@ -207,9 +215,10 @@ public class DriveSubsystem extends SubsystemBase {
         // SmartDashboard.putNumber("y speed", ySpeed);
         // SmartDashboard.putNumber("chassis speed", getChassisVectorSpeed());
         // SmartDashboard.putNumber("chassis angle", getChassisVectorAngle());
-        SmartDashboard.putNumber("par speed", getChassisParSpeed());
-        SmartDashboard.putNumber("targ_x", target_x);
-        SmartDashboard.putNumber("targ_y", target_y);
+        // SmartDashboard.putNumber("par speed", getChassisParSpeed());
+        // SmartDashboard.putNumber("targ_x", target_x);
+        // SmartDashboard.putNumber("targ_y", target_y);
+        // SmartDashboard.putString("pose", getPose().toString());
         // SmartDashboard.putNumber("targ_new_angle_x",
         // moveTargetX(getChassisTanSpeed()));
         // SmartDashboard.putNumber("targ_new_angle_y",
@@ -519,9 +528,9 @@ public class DriveSubsystem extends SubsystemBase {
             getAxisTheta = RobotContainer.getJoy().getRawAxis(4);
         }
 
-        SmartDashboard.putNumber("limitX", limiterX.calculate(SmartDashboard.getNumber("x", 0)));
-        SmartDashboard.putNumber("limitY", limiterY.calculate(SmartDashboard.getNumber("y", 0)));
-        SmartDashboard.putNumber("limitZ", limiterZ.calculate(SmartDashboard.getNumber("z", 0)));
+        // SmartDashboard.putNumber("limitX", limiterX.calculate(SmartDashboard.getNumber("x", 0)));
+        // SmartDashboard.putNumber("limitY", limiterY.calculate(SmartDashboard.getNumber("y", 0)));
+        // SmartDashboard.putNumber("limitZ", limiterZ.calculate(SmartDashboard.getNumber("z", 0)));
 
         var chassisSpeed = kDriveKinematics.toChassisSpeeds(moduleStates);
         double chassisRotationSpeed = chassisSpeed.omegaRadiansPerSecond;
@@ -607,6 +616,35 @@ public class DriveSubsystem extends SubsystemBase {
 
         robot_x = getPose().getX();
         robot_y = getPose().getY();
+
+        // SmartDashboard.putNumber("x", robot_x);
+        // SmartDashboard.putNumber("y", robot_y);
+        // Logger.Work.post("FieldRelative", 20.2);
+        // Logger.Work.post("GyroCalibrating", gyro.isCalibrating());
+        // Logger.Work.post("odom", "bruh odometry is ass");
+        // Logger.Work.post("Field5427", field);
+        // Logger.Work.post("key", backLeft.getTurnPosRad());
+        // Logger.Work.post("gyro", 234234243);
+
+        // Logger.Work.post("swerveDataBAD", robot_x);
+        // Logger.Work.post("frontLefts", robot_y);
+        log();
+
+    }
+
+    public void log() {
+        // SmartDashboard.putNumber("x", robot_x);
+        // SmartDashboard.putNumber("y", robot_y);
+        Logger.Work.post("FieldRelative", 20.2);
+        // Logger.Work.post("GyroCalibrating", gyro.isCalibrating());
+        Logger.Work.post("odom", "bruh odometry is ass");
+        Logger.Work.postComplex("Field5427", m_fieldSim, BuiltInWidgets.kField);
+        Logger.Work.post("key", "key");
+        Logger.Work.post("gyro", 234234243);
+
+        Logger.Work.post("swerveDataBAD", robot_x);
+        Logger.Work.post("frontLefts", robot_y);
+
 
     }
 }
